@@ -6,9 +6,13 @@ itself [from my blog](http://fuzyll.com/2016/the-defcon-ctf-vm/).
 To use this VM, simply start it up in VMware and do the following to connect to a given service:
 
 ```
-nc ctf-jail <port>  # for TCPv4 services
-nc6 ctf-jail <port>  # for TCPv6 services
+nc defcon.local <port>  # for TCPv4 services
+nc6 defcon.local <port>  # for TCPv6 services
 ```
+
+*NOTE: Your network settings may not resolve "defcon.local" as a hostname. You can log in and run `ifconfig` from
+inside the VM to get its IP address. You can also try using just "defcon" or "defcon.<your local domain>" and see if
+those work.*
 
 Getting the flag for each service is, obviously, an exercise left to the reader.
 
@@ -255,6 +259,10 @@ The initial setup is simple:
 * Installed FreeBSD 9.1 with default options from the i386 install media
 * Uncommented and set "PermitRootLogin" to "yes" in /etc/ssh/sshd_config with `vi`
 * Ran `/etc/rc.d/sshd restart` so I could SSH/SCP
+
+*NOTE: In the real CTF, each team would actually get a FreeBSD jail, rather than a VM. For simplicity, I've set
+everything up outside of a jail. I hope to find my documentation on jails and include it here in the future if anyone
+wants to set things up more authentically. For now, you'll just have to make do with this approximation.*
 
 ## Service Setup ##
 
