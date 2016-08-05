@@ -1,0 +1,87 @@
+#!/usr/bin/env python
+__maxsteps__ = 250000
+
+import sys
+from BaseHTTPServer import *
+import PyFunge.execute
+from PyFunge.exception import *
+from PyFunge.platform import FungePlatform
+
+class FungePlatform_shell(FungePlatform):
+    def __init__(self,wfile):
+        FungePlatform.__init__(self)
+        self.wfile = wfile
+
+    def putchar(self, char):
+	self.wfile.write(chr(char))
+	self.wfile.flush()
+
+    def getchar(self):
+        return ord(sys.stdin.read(1))
+    
+def execute(code,wfile):
+    platform = FungePlatform_shell(wfile)
+    execute = PyFunge.execute.FungeExec_FTrefunge98(platform)
+
+    res = ""
+    stopped = False
+    
+    try:
+        execute.space.putspace((0,) * execute.dimension, code)
+    except:
+        res = "Error on PyFunge.space.putspace: Code doesn't fit in Befunge-space!"
+
+    if not res:
+        for x in xrange(__maxsteps__):
+            try:
+                execute.onestep()
+            except (ExecQuitError, ExecStopError):
+                stopped = True
+                break
+            except:
+                exc = sys.exc_info()
+                raise
+                res = "Error on PyFunge.execute.onestep: %s (%s)" % (str(exc[0]), str(exc[1]))
+                break
+
+        if execute.stack.slen() > 1:
+            message = \
+                "%d item(s) in topmost stack, %d stacks in stack stack" % \
+                (execute.stack.len(), execute.stack.slen())
+        else:
+            message = "%d item(s) in stack" % (execute.stack.len(),)
+
+        if stopped:
+            for ch in "[Stopped: %d steps, %s]\n" % (x+1, message):
+                execute.platform.putchar(ord(ch))
+        elif not res:
+            execute.platform.putchar(10)
+            res = "[Not Stopped: more than %d steps, %s]" % \
+                (__maxsteps__, message)
+
+    return res
+
+class BefungeHandler(BaseHTTPRequestHandler):
+
+    def __init__(self, request, clientaddr, server):
+        self.server_version = "Befunge HTTPD/1.0"
+        BaseHTTPRequestHandler.__init__(self, request, clientaddr, server)
+
+    def do_GET(self):
+        self.send_response(404, "Hmm..  We don't take gets")
+        self.send_header("WhatYouWant","BEFUNGE")
+        self.end_headers()
+
+    def do_POST(self):
+        self.do_GET(self)
+
+    def do_BEFUNGE(self):
+        #KENSHOTO You can't just remove this...
+        # There is a service poll that requires reaching this
+        code = self.rfile.read(10000)
+        execute(code,self.wfile)
+
+if __name__ == "__main__":
+
+    server = HTTPServer(("",42666), BefungeHandler)
+    server.serve_forever()

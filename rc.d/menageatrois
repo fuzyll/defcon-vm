@@ -1,0 +1,31 @@
+#!/bin/sh
+
+# PROVIDE: menageatrois
+# REQUIRE: NETWORKING
+# KEYWORD: shutdown
+
+. /etc/rc.subr                      # required by rc.d subsystem
+
+name="menageatrois"                 # name of script
+rcvar="menageatrois_enable"         # name of /etc/rc.conf enable command
+command="/usr/local/sbin/${name}"   # path to executable
+command_args="&"                    # arguments to executable
+#pidfile="/var/run/${name}.pid"     # file containing service's process ID
+required_files=""                   # files required to start service
+#start_cmd="${name}_start"          # name of start function
+#stop_cmd="${name}_stop"            # name of stop function
+
+load_rc_config $name                # load rc.conf variables
+: ${menageatrois_enable:=yes}       # enable by default
+: ${menageatrois_startmsgs:=yes}    # show startup messages in /var/log/syslog
+
+menageatrois_start() {
+    # unused 
+}
+
+menageatrois_stop() {
+    # unused
+}
+
+run_rc_command "$1"                 # invoke rc.subr
+
