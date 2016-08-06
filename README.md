@@ -274,8 +274,9 @@ changed to prevent unwanted modifications. To do this:
 ```
 # create a user with a given name (-n), shell (-s), and home directory (-m)
 pw useradd -n <username> -s /usr/bin/false -m
-chmod -R 750 /usr/home/<username>
+chmod 750 /usr/home/<username>
 chown root:<username> /path/to/service
+chmod 750 /path/to/service
 ```
 
 Binaries before DEFCON 19 were located inside each service's home folder. Starting in DEFCON 19, however, they were
@@ -287,7 +288,7 @@ change these out periodically (about once every 2-5 minutes or so). Since I don'
 placed the `sha1sum` of the service into the flag file:
 
 ```
-sha1sum /path/to/service > /usr/home/<username>/key
+sha1 /path/to/service | cut -d' ' -f4 > /usr/home/<username>/key
 chmod 540 /usr/home/<username>/key
 ```
 
